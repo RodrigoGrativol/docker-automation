@@ -88,6 +88,7 @@ jobs:
           pytest -v
 
 
+      # 🔟 Parar containers ao final  
       - name: Shut down containers
         working-directory: burguer-app
         run: docker-compose down --volumes
