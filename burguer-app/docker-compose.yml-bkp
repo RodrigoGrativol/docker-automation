@@ -1,16 +1,6 @@
-version: '3.9'  # substitui '1.0', pois esse schema é o reconhecido oficialmente
+version: '1.0'
 
 services:
-  mongo:
-    image: mongo:latest
-    container_name: mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - ./data:/data/db
-    networks:
-      - microservices-network
-
   auth-service:
     build:
       context: ./auth-service
@@ -20,10 +10,6 @@ services:
       - "5000:5000"
     env_file:
       - ./auth-service/.env
-    environment:
-      MONGO_URI: mongodb://mongo:27017
-    depends_on:
-      - mongo
     networks:
       - microservices-network
 
@@ -36,10 +22,6 @@ services:
       - "5001:5001"
     env_file:
       - ./user-service/.env
-    environment:
-      MONGO_URI: mongodb://mongo:27017
-    depends_on:
-      - mongo
     networks:
       - microservices-network
 
@@ -52,10 +34,6 @@ services:
       - "5002:5002"
     env_file:
       - ./order-service/.env
-    environment:
-      MONGO_URI: mongodb://mongo:27017
-    depends_on:
-      - mongo
     networks:
       - microservices-network
 
@@ -68,14 +46,9 @@ services:
       - "5003:5003"
     env_file:
       - ./product-service/.env
-    environment:
-      MONGO_URI: mongodb://mongo:27017
-    depends_on:
-      - mongo
     networks:
       - microservices-network
 
 networks:
   microservices-network:
     driver: bridge
-
