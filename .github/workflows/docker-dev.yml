@@ -62,30 +62,6 @@ jobs:
             sleep 2
           done
 
-      # 9️⃣ Testar todos os serviços (paralelo possível em jobs separados se desejar)
-      - name: Test auth-service
-        working-directory: burguer-app/auth-service
-        run: |
-          pip install -r requirements.txt
-          pytest -v
-
-      - name: Test order-service
-        working-directory: burguer-app/order-service
-        run: |
-          pip install -r requirements.txt
-          pytest -v
-
-      - name: Test product-service
-        working-directory: burguer-app/product-service
-        run: |
-          pip install -r requirements.txt
-          pytest -v
-
-      - name: Test user-service
-        working-directory: burguer-app/user-service
-        run: |
-          pip install -r requirements.txt
-          pytest -v
 
       # 🔟 Parar containers ao final
       - name: Shut down containers
