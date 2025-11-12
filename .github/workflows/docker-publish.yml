@@ -3,7 +3,7 @@ name: Build and Publish Docker Images New
 on:
   push:
     branches:
-      - aula-04
+      - main
 
 jobs:
   docker:
