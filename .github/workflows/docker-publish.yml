@@ -1,9 +1,9 @@
-name: Build and Publish Docker Images
+name: Build and Publish Docker Images New
 
 on:
   push:
     branches:
-      - main
+      - aula-04
 
 jobs:
   docker:
