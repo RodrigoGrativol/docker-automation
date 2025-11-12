@@ -1,16 +1,16 @@
-name: Build and Publish Docker Images New
+name: Build and Publish Docker Images
 
 on:
   push:
     branches:
-      - main
+      - aula-04
 
 jobs:
   docker:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Clonar o repositório
+      # 1️⃣ Clone de repositório
       - name: Checkout repository
         uses: actions/checkout@v3
 
