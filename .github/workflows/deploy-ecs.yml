@@ -1,11 +1,12 @@
-name: Deploy to ECS (Fargate) via Docker Hub
+name: Deploy to ECS (Fargate) via Docker Hub New
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      aula-05
 
 env:
-  CLUSTER_NAME: app-cluster
+  CLUSTER_NAME: teste-rg
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
