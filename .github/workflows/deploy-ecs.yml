@@ -1,4 +1,4 @@
-name: Deploy to ECS (Fargate) via Docker Hub New
+name: Deploy to ECS (Fargate) via Docker Hub
 
 on:
   push:
