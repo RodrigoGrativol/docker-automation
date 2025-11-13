@@ -1,4 +1,4 @@
-name: Deploy to ECS (Fargate) via Docker Hub
+name: Deploy to ECS Fargate via Docker Hub 
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - aula-05
 
 env:
-  CLUSTER_NAME: teste-rg
+  CLUSTER_NAME: teste-rg 
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
