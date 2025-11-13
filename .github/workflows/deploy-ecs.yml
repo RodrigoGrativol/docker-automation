@@ -1,4 +1,4 @@
-name: Deploy to ECS Fargate via Docker Hub 
+name: Deploy to ECS Fargate via Docker Hub
 
 on:
   push:
@@ -6,16 +6,27 @@ on:
       - aula-05
 
 env:
-  CLUSTER_NAME: teste-rg 
+  AWS_REGION: us-east-1
+  CLUSTER_NAME: teste-rg
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        service: [auth-service, user-service, order-service, product-service]
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Debug variables
+        run: |
+          echo "Cluster: $CLUSTER_NAME"
+          echo "Service: ${{ matrix.service }}"
+          echo "Image Tag: $IMAGE_TAG"
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -23,46 +34,31 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker images
+      - name: Build and push Docker image
         run: |
-          # Auth service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/auth-service:latest ./burguer-app/auth-service
-          docker tag ${{ secrets.DOCKER_USERNAME }}/auth-service:latest \
-                     ${{ secrets.DOCKER_USERNAME }}/auth-service:${{ github.sha }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/auth-service:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/auth-service:${{ github.sha }}
+          SERVICE=${{ matrix.service }}
+          echo "🚧 Building and pushing image for $SERVICE..."
 
-          # User service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/user-service:latest ./burguer-app/user-service
-          docker tag ${{ secrets.DOCKER_USERNAME }}/user-service:latest \
-                     ${{ secrets.DOCKER_USERNAME }}/user-service:${{ github.sha }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/user-service:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/user-service:${{ github.sha }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/$SERVICE:latest ./burguer-app/$SERVICE
+          docker tag ${{ secrets.DOCKER_USERNAME }}/$SERVICE:latest \
+                     ${{ secrets.DOCKER_USERNAME }}/$SERVICE:${{ github.sha }}
 
-          # Order service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/order-service:latest ./burguer-app/order-service
-          docker tag ${{ secrets.DOCKER_USERNAME }}/order-service:latest \
-                     ${{ secrets.DOCKER_USERNAME }}/order-service:${{ github.sha }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/order-service:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/order-service:${{ github.sha }}
-
-          # Product service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/product-service:latest ./burguer-app/product-service
-          docker tag ${{ secrets.DOCKER_USERNAME }}/product-service:latest \
-                     ${{ secrets.DOCKER_USERNAME }}/product-service:${{ github.sha }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/product-service:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/product-service:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/$SERVICE:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/$SERVICE:${{ github.sha }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Force new deployment on ECS services
+      - name: Force new ECS deployment
         run: |
-          aws ecs update-service --cluster "$CLUSTER_NAME" --service "auth-service" --force-new-deployment
-          aws ecs update-service --cluster "$CLUSTER_NAME" --service "auth-task-service-zy1ragky" --force-new-deployment
-          aws ecs update-service --cluster "$CLUSTER_NAME" --service "order-service" --force-new-deployment
-          aws ecs update-service --cluster "$CLUSTER_NAME" --service "product-service" --force-new-deployment
+          SERVICE=${{ matrix.service }}
+          echo "🚀 Triggering new deployment for $SERVICE on cluster $CLUSTER_NAME..."
+          aws ecs update-service \
+            --cluster "$CLUSTER_NAME" \
+            --service "$SERVICE" \
+            --region "$AWS_REGION" \
+            --force-new-deployment
