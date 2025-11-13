@@ -3,7 +3,7 @@ name: Deploy to ECS (Fargate) via Docker Hub New
 on:
   push:
     branches:
-      aula-05
+    - aula-05
 
 env:
   CLUSTER_NAME: teste-rg
